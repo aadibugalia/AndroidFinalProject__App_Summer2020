@@ -41,6 +41,7 @@ import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoggedInUser
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.Result;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageFromActivity;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageToActivity;
+import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasFragment;
 import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasRecyclerViewAdapter;
 import ab.lasalle.androidfinalproject.ui.fragments.people.PeopleRecyclerViewAdapter;
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
@@ -272,7 +273,21 @@ registerButton.setText("update");
 
                     @Override
                     public void onIndependentViewClicked(int independentViewID, int position) {
+                        JSONObject object = null;
+                        try {
 
+
+                            object = new JSONObject();
+
+                            object.put("ideaID", loggedInUser.getPersonalIdeas().get(position).getId());
+
+
+                        } catch (Exception e) {
+
+
+                        }
+                        HttpServiceThread thread = new HttpServiceThread(loggedInUser.getUserName()+"/deleteIdea", object.toString(), ProfileFragment.this);
+                        thread.start();
                     }
                 })
                 .setLongClickable(true, new RecyclerTouchListener.OnRowLongClickListener() {
