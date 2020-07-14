@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:gravity="center_horizontal"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="@dimen/logo_margin_width_register"
+        android:layout_height="@dimen/logo_margin_height_resgister"
+        android:layout_marginTop="@dimen/logo_margin_top_register"
+        android:background="@drawable/logo" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
+        android:text="@string/searchUser"
+        android:layout_marginTop="@dimen/logo_margin_top_register"/>
+
+    <EditText
+        android:id="@+id/usernameToSearchTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginEnd="24dp"
+
+        android:hint="@string/prompt_username"
+        android:inputType="textPersonName"
+        android:selectAllOnFocus="true" />
+
+
+
+    <EditText
+        android:id="@+id/userResultEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+
+android:enabled="false"
+        android:imeActionLabel="@string/action_sign_in_short"
+        android:imeOptions="actionDone"
+        android:inputType="textShortMessage"
+        android:selectAllOnFocus="true">
+
+    </EditText>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/background_light"
+        android:gravity="center_horizontal"
+        android:padding="10dp"
+        android:orientation="horizontal">
+    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+        android:id="@+id/searchButton"
+        style="?metaButtonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/logo_margin_height_resgister"
+        android:background="@color/colorAccent"
+        android:padding="@dimen/fab_margin"
+        android:text="@string/searchButton"
+        android:textColor="@android:color/white" />
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/followButton"
+            style="?metaButtonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/logo_margin_height_resgister"
+            android:background="@color/colorAccent"
+            android:padding="@dimen/fab_margin"
+            android:text="@string/followButton"
+            android:layout_marginLeft="40dp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</LinearLayout>

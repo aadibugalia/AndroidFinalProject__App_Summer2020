@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF8183</color>
+    <color name="colorPrimaryDark">#FF8183</color>
+    <color name="colorAccent">#FF8183</color>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="swipeoption_green">#36CF8E</color>
+    <color name="swipeoption_blue">#3693D0</color>
+    <color name="swipeoption_purple">#ff1744</color>
+</resources>
