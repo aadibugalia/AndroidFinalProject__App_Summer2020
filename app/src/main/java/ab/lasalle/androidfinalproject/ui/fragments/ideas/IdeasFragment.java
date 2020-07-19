@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -61,7 +62,6 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
     private SharedViewModel viewModel;
 
 
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -110,6 +110,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
 
                 if (apiResult.getError() != null) {
 
+                    Toast.makeText(getActivity().getApplicationContext(), "", Toast.LENGTH_LONG).show();
                 }
                 if (apiResult.getSuccess() != null) {
 
@@ -162,11 +163,23 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
         viewModel.fetchAllIdeas(Constants.API_REQUEST.FETCH_IDEAS);
     }
 
-    void setUpRecylerviewData(final List<Idea> ideaList) {
-        mAdapter = new IdeasRecyclerViewAdapter(getActivity(), ideaList);
-        mRecyclerView.setAdapter(mAdapter);
+    private void setUpRecylerviewData(final List<Idea> ideaList) {
+        if (mAdapter == null) {
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mAdapter = new IdeasRecyclerViewAdapter(getActivity(), ideaList);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            mRecyclerView.setHasFixedSize(true);
+            mRecyclerView.setItemViewCacheSize(5);
+
+            mRecyclerView.setAdapter(mAdapter);
+
+        } else {
+
+            mAdapter.setModelList(ideaList);
+            mAdapter.notifyDataSetChanged();
+
+        }
+
 
         onTouchListener = new RecyclerTouchListener(getActivity(), mRecyclerView);
         onTouchListener
@@ -177,14 +190,14 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
                     public void onRowClicked(int position) {
 
 
-                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(),ideaList.get(position).getId());
+                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(), ideaList.get(position).getId());
 
 
                     }
 
                     @Override
                     public void onIndependentViewClicked(int independentViewID, int position) {
-                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(),ideaList.get(position).getId());
+                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(), ideaList.get(position).getId());
 
                     }
                 })
@@ -219,7 +232,6 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
         this.touchListener = listener;
         mRecyclerView.addOnItemTouchListener(onTouchListener);
     }
-
 
 
 }

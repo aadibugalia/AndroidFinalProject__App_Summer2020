@@ -42,7 +42,10 @@ import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class PeopleFragment extends Fragment implements MessageFromActivity, RecyclerTouchListener.RecyclerTouchListenerHelper, ApiResponseCallback {
 
-    private HomeViewModel homeViewModel;
+
+
+
+
     MessageToActivity sendMessageToActivity;
     private AlertDialog dialog;
 

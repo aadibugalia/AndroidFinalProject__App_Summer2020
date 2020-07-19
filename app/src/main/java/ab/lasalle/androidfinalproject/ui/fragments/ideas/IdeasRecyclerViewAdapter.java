@@ -23,6 +23,10 @@ public class IdeasRecyclerViewAdapter extends RecyclerView.Adapter<IdeasRecycler
         modelList = new ArrayList<>(list);
     }
 
+    public void setModelList(List<Idea> modelList) {
+        this.modelList = modelList;
+    }
+
     @Override
     public MainViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.newidea_listitem_structure, parent, false);
