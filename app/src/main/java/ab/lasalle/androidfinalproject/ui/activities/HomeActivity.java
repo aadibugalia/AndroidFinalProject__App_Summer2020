@@ -14,30 +14,44 @@ import com.melnykov.fab.FloatingActionButton;
 import com.nikhilpanju.recyclerviewenhanced.OnActivityTouchListener;
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ab.lasalle.androidfinalproject.R;
 import ab.lasalle.androidfinalproject.server.callbacks.ApiResponseCallback;
 import ab.lasalle.androidfinalproject.server.threads.HttpServiceThread;
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoggedInUser;
+import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageFromActivity;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageToActivity;
+import ab.lasalle.androidfinalproject.ui.fragments.common.APIResult;
+import ab.lasalle.androidfinalproject.ui.fragments.common.Constants;
+import ab.lasalle.androidfinalproject.ui.fragments.common.SharedViewModel;
+import ab.lasalle.androidfinalproject.ui.fragments.common.ViewModelFactory;
 import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasFragment;
 import ab.lasalle.androidfinalproject.ui.fragments.people.PeopleFragment;
 import ab.lasalle.androidfinalproject.ui.fragments.profile.ProfileFragment;
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
-public class HomeActivity extends AppCompatActivity implements MessageToActivity, ApiResponseCallback, RecyclerTouchListener.RecyclerTouchListenerHelper {
+public class HomeActivity extends AppCompatActivity implements MessageToActivity, RecyclerTouchListener.RecyclerTouchListenerHelper {
 
+
+    private SharedViewModel viewModel;
     FloatingActionButton fab;
     Fragment mChildFragment;
     MessageFromActivity sendMessageToChildFragment;
@@ -45,17 +59,10 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
     private AlertDialog dialog;
     private boolean isAdd;
 
-    private enum RequestType {
-        REGISTER_IDEA,
-        SEARCH_USER,
-        FOLLOW_USER
-    }
 
     private EditText userResultEditText;
-    private RequestType mRequestType;
 
-
-     CircularProgressButton searchButton, followButton ;
+    CircularProgressButton searchButton, followButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,68 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+        viewModel = ViewModelProviders.of(this, new ViewModelFactory())
+                .get(SharedViewModel.class);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        viewModel.getAPIResult().observe(this, new Observer<APIResult>() {
+            @Override
+            public void onChanged(@Nullable APIResult apiResult) {
+                if (apiResult == null) {
+                    return;
+                }
+
+                if (apiResult.getError() != null) {
+
+                }
+                if (apiResult.getSuccess() != null) {
+
+                    switch (apiResult.getRequestType()) {
+                        case SEARCH_USER:
+
+                            try {
+                                final JSONObject person = apiResult.getSuccess().getJSONObject("person");
+                                HomeActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            searchButton.stopAnimation();
+                                            userResultEditText.setText(person.getString("email"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                            } catch (Exception e) {
+
+
+                            }
+                            break;
+
+                        case FOLLOW_USER:
+                            dialog.cancel();
+                            break;
+
+                        case REGISTER_IDEA:
+                            dialog.cancel();
+                            break;
+
+
+                    }
+
+
+                }
+
+
+            }
+        });
 
 
     }
@@ -124,48 +193,6 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
     }
 
 
-    @Override
-    public void onApiResponseRecieved(JSONObject responseObject) {
-
-        try {
-
-
-            if (responseObject.get("status").toString().equalsIgnoreCase("0")) {
-                //    Toast.makeText(HomeActivity.this, "Idea Updated Successfully", Toast.LENGTH_LONG).show();
-                switch (mRequestType) {
-
-                    case REGISTER_IDEA:
-                        break;
-                    case SEARCH_USER:
-                        final JSONObject person  = responseObject.getJSONObject("person");
-                        HomeActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    searchButton.stopAnimation();
-                                    userResultEditText.setText(person.getString("email"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-
-                        break;
-                    case FOLLOW_USER:
-                        dialog.cancel();
-                        break;
-                }
-            } else {
-                //     Toast.makeText(HomeActivity.this, "Idea not Updated Successfully", Toast.LENGTH_LONG).show();
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-
-        }
-    }
-
-
     public void showDialogCreateIdea(Context activity, final LoggedInUser loggedInUser) {
 
         View root = getLayoutInflater().inflate(R.layout.idea_layout, null, false);
@@ -190,24 +217,9 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
             public void onClick(View v) {
                 registerButton.startAnimation();
 
-                JSONObject object = null;
-                try {
 
-
-                    object = new JSONObject();
-                    object.put("userName", loggedInUser.getUserName());
-                    object.put("title", titleEditText.getText().toString());
-                    object.put("context", contextEditText.getText().toString());
-                    object.put("content", contentEditText.getText().toString());
-
-
-                } catch (Exception e) {
-
-
-                }
-                mRequestType = RequestType.REGISTER_IDEA;
-                HttpServiceThread thread = new HttpServiceThread("operations/registerIdea", object.toString(), HomeActivity.this);
-                thread.start();
+                viewModel.registerIdea(Constants.API_REQUEST.REGISTER_IDEA, loggedInUser.getUserName(), titleEditText.getText().toString(),
+                        contextEditText.getText().toString(), contentEditText.getText().toString());
 
 
             }
@@ -227,7 +239,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
 
 
         searchButton = root.findViewById(R.id.searchButton);
-         followButton = root.findViewById(R.id.followButton);
+        followButton = root.findViewById(R.id.followButton);
         final EditText usernameEdittext;
 
         usernameEdittext = root.findViewById(R.id.usernameToSearchTextView);
@@ -239,21 +251,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
             public void onClick(View v) {
                 searchButton.startAnimation();
 
-                JSONObject object = null;
-                try {
-
-
-                    object = new JSONObject();
-                    object.put("userName", usernameEdittext.getText().toString());
-
-
-                } catch (Exception e) {
-
-
-                }
-                mRequestType = RequestType.SEARCH_USER;
-                HttpServiceThread thread = new HttpServiceThread("searchUser", object.toString(), HomeActivity.this);
-                thread.start();
+                viewModel.searchUser(Constants.API_REQUEST.SEARCH_USER, usernameEdittext.getText().toString());
 
 
             }
@@ -264,23 +262,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
             public void onClick(View v) {
                 followButton.startAnimation();
 
-                JSONObject object = null;
-                try {
-
-
-                    object = new JSONObject();
-                    object.put("userName", loggedInUser.getUserName());
-                    object.put("userNameToFollow", usernameEdittext.getText().toString());
-
-
-                } catch (Exception e) {
-
-
-                }
-                mRequestType = RequestType.FOLLOW_USER;
-
-                HttpServiceThread thread = new HttpServiceThread("updateFollowingList", object.toString(), HomeActivity.this);
-                thread.start();
+                viewModel.updateFollowingList(Constants.API_REQUEST.FOLLOW_USER, loggedInUser.getUserName(), usernameEdittext.getText().toString());
 
 
             }
@@ -291,12 +273,13 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        sendMessageToChildFragment.onDispatchTouchEvent(ev);    return super.dispatchTouchEvent(ev);
+        sendMessageToChildFragment.onDispatchTouchEvent(ev);
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
     public void setOnActivityTouchListener(OnActivityTouchListener listener) {
-       sendMessageToChildFragment.setOnActivityTouchListener(listener);
+        sendMessageToChildFragment.setOnActivityTouchListener(listener);
     }
 
 }

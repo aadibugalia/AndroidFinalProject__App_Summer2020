@@ -38,6 +38,14 @@ public class HttpServiceThread extends Thread {
         this.serverResponseNotifier = serverResponseNotifier;
     }
 
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
+    }
+
+    public void setRequestBody(String requestBody) {
+        this.requestBody = requestBody;
+    }
+
     @Override
     public void run() {
         initiateServerCommnunication();

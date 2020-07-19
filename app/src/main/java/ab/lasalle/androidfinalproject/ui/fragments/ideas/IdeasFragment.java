@@ -1,16 +1,19 @@
 package ab.lasalle.androidfinalproject.ui.fragments.ideas;
 
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import androidx.lifecycle.Observer;
+
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,47 +22,52 @@ import com.nikhilpanju.recyclerviewenhanced.OnActivityTouchListener;
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener;
 
 import org.json.JSONArray;
-import org.json.JSONException;
+
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import ab.lasalle.androidfinalproject.R;
-import ab.lasalle.androidfinalproject.server.callbacks.ApiResponseCallback;
-import ab.lasalle.androidfinalproject.server.threads.HttpServiceThread;
+
+
 import ab.lasalle.androidfinalproject.ui.activities.HomeActivity;
+
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoggedInUser;
-import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.Result;
+
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
-import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Person;
+
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageFromActivity;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageToActivity;
+import ab.lasalle.androidfinalproject.ui.fragments.common.APIResult;
+import ab.lasalle.androidfinalproject.ui.fragments.common.Constants;
+import ab.lasalle.androidfinalproject.ui.fragments.common.SharedViewModel;
+import ab.lasalle.androidfinalproject.ui.fragments.common.ViewModelFactory;
 
-public class IdeasFragment extends Fragment implements MessageFromActivity, ApiResponseCallback {
+public class IdeasFragment extends Fragment implements MessageFromActivity {
 
 
-    MessageToActivity sendMessageToActivity;
+    private MessageToActivity sendMessageToActivity;
     private LoggedInUser mLoggedInUser;
-    RecyclerView mRecyclerView;
-    IdeasRecyclerViewAdapter mAdapter;
-    String[] dialogItems;
-    List<Integer> unclickableRows, unswipeableRows;
+    private RecyclerView mRecyclerView;
+    private IdeasRecyclerViewAdapter mAdapter;
+    private String[] dialogItems;
+    private List<Integer> unclickableRows, unswipeableRows;
     private RecyclerTouchListener onTouchListener;
     private int openOptionsPosition;
     private OnActivityTouchListener touchListener;
-    private enum RequestType {
-        FETCH_IDEA,
-        UPDATE_TODO,
 
-    }
-    private RequestType mRequestType;
+    private SharedViewModel viewModel;
+
+
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.idea_listview_layout, container, false);
 
-        sendMessageToActivity = (HomeActivity)getActivity();
+        sendMessageToActivity = (HomeActivity) getActivity();
         sendMessageToActivity.OnFragmentReady(this);
         sendMessageToActivity.toggleFabVisibility(View.VISIBLE);
         sendMessageToActivity.toggleAddSearch(true);
@@ -71,7 +79,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity, ApiR
 
     @Override
     public void OnDataRecieved(Object mObject) {
-        this.mLoggedInUser=(LoggedInUser) mObject;
+        this.mLoggedInUser = (LoggedInUser) mObject;
     }
 
     @Override
@@ -89,25 +97,72 @@ public class IdeasFragment extends Fragment implements MessageFromActivity, ApiR
     @Override
     public void onResume() {
         super.onResume();
-
-        JSONObject object = null;
-        try {
-
-
-            object = new JSONObject();
-            object.put("dummy", "");
+        viewModel = ViewModelProviders.of(this, new ViewModelFactory())
+                .get(SharedViewModel.class);
 
 
-        } catch (Exception e) {
+        viewModel.getAPIResult().observe(this, new Observer<APIResult>() {
+            @Override
+            public void onChanged(@Nullable APIResult apiResult) {
+                if (apiResult == null) {
+                    return;
+                }
+
+                if (apiResult.getError() != null) {
+
+                }
+                if (apiResult.getSuccess() != null) {
+
+                    switch (apiResult.getRequestType()) {
+                        case FETCH_IDEAS:
+
+                            try {
+                                JSONArray jsonArray = apiResult.getSuccess().getJSONArray("ideas");
 
 
-        }
-        mRequestType= RequestType.FETCH_IDEA;
-        HttpServiceThread thread = new HttpServiceThread("getAllIdeas", object.toString(), IdeasFragment.this);
-        thread.start();
+                                final List list = new ArrayList<Idea>();
+
+                                if (jsonArray != null) {
+                                    int len = jsonArray.length();
+                                    for (int i = 0; i < len; i++) {
+                                        Idea idea = new Idea();
+                                        JSONObject obj = jsonArray.getJSONObject(i);
+                                        idea.setContent(obj.getString("content"));
+                                        idea.setContext(obj.getString("context"));
+                                        idea.setTitle(obj.getString("title"));
+                                        idea.setId(obj.getString("id"));
+
+                                        list.add(idea);
+                                    }
+                                }
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setUpRecylerviewData(list);
+                                    }
+                                });
+                            } catch (Exception e) {
+
+
+                            }
+                            break;
+
+
+                    }
+
+
+                }
+
+
+            }
+        });
+
+
+        viewModel.fetchAllIdeas(Constants.API_REQUEST.FETCH_IDEAS);
     }
 
-    void setUpRecylerviewData(final List<Idea> ideaList){
+    void setUpRecylerviewData(final List<Idea> ideaList) {
         mAdapter = new IdeasRecyclerViewAdapter(getActivity(), ideaList);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -120,44 +175,16 @@ public class IdeasFragment extends Fragment implements MessageFromActivity, ApiR
                 .setClickable(new RecyclerTouchListener.OnRowClickListener() {
                     @Override
                     public void onRowClicked(int position) {
-                        JSONObject object = null;
-                        try {
 
 
-                            object = new JSONObject();
-                            object.put("userName",mLoggedInUser.getUserName() );
-                            object.put("ideaID", ideaList.get(position).getId());
-
-
-                        } catch (Exception e) {
-
-
-                        }
-                        mRequestType= RequestType.UPDATE_TODO;
-                        HttpServiceThread thread = new HttpServiceThread("operations/addToPersonalToDo", object.toString(), IdeasFragment.this);
-                        thread.start();
+                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(),ideaList.get(position).getId());
 
 
                     }
 
                     @Override
                     public void onIndependentViewClicked(int independentViewID, int position) {
-
-                        JSONObject object = null;
-                        try {
-
-
-                            object = new JSONObject();
-                            object.put("userName",mLoggedInUser.getUserName() );
-                            object.put("ideaID", ideaList.get(position).getId());
-
-
-                        } catch (Exception e) {
-
-
-                        }
-                        HttpServiceThread thread = new HttpServiceThread("operations/addToPersonalToDo", object.toString(), IdeasFragment.this);
-                        thread.start();
+                        viewModel.updateToDo(Constants.API_REQUEST.UPDATE_TODO, mLoggedInUser.getUserName(),ideaList.get(position).getId());
 
                     }
                 })
@@ -193,54 +220,6 @@ public class IdeasFragment extends Fragment implements MessageFromActivity, ApiR
         mRecyclerView.addOnItemTouchListener(onTouchListener);
     }
 
-    @Override
-    public void onApiResponseRecieved(JSONObject responseObject) {
-
-
-
-        try {
-            if (responseObject.get("status").toString().equalsIgnoreCase("0")) {
-                switch (mRequestType){
-
-                    case FETCH_IDEA:
-                        JSONArray jsonArray  = responseObject.getJSONArray("ideas");
-
-
-
-                        final List list = new ArrayList<Idea>();
-
-                        if (jsonArray != null) {
-                            int len = jsonArray.length();
-                            for (int i=0;i<len;i++){
-                                Idea idea = new Idea();
-                                JSONObject obj = jsonArray.getJSONObject(i);
-                                idea.setContent(obj.getString("content"));
-                                idea.setContext(obj.getString("context"));
-                                idea.setTitle(obj.getString("title"));
-                                idea.setId(obj.getString("id"));
-
-                                list.add(idea);
-                            }
-                        }
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setUpRecylerviewData(list);
-                            }
-                        });
-                        break;
-                    case UPDATE_TODO:
-                        break;
-                }
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-
-
-        }
-    }
 
 
 }
