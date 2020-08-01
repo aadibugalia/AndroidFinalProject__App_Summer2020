@@ -320,6 +320,7 @@ registerButton.setText("update");
     @Override
     public void onPause() {
         super.onPause();
+        if(mRecyclerView!=null)
         mRecyclerView.removeOnItemTouchListener(onTouchListener);
     }
 

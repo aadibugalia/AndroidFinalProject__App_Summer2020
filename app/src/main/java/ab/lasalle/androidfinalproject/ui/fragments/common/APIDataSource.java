@@ -73,7 +73,7 @@ public class APIDataSource implements ApiResponseCallback {
 
         }
 
-        thread = new HttpServiceThread("/getIdea/"+title, object.toString(), this);
+        thread = new HttpServiceThread("getIdea/"+title, object.toString(), this);
 
 
 

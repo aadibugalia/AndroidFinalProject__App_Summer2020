@@ -42,7 +42,7 @@ public class DataRepository implements ApiResponseCallback {
 
     public void searchIdea(Constants.API_REQUEST requestType, String title, ApiResponseCallback callback) {
         this.mCallback = callback;
-        mDataSource.searchUser(requestType, title,this);
+        mDataSource.searchIdea(requestType, title,this);
     }
 
     public void updateToDo(Constants.API_REQUEST requestType, String userName, String ideaId, ApiResponseCallback callback) {
