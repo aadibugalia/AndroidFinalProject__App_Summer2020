@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import ab.lasalle.androidfinalproject.server.callbacks.ApiResponseCallback;
 import ab.lasalle.androidfinalproject.server.threads.HttpServiceThread;
+import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
 import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasFragment;
 
 public class APIDataSource implements ApiResponseCallback {
@@ -16,12 +17,14 @@ public class APIDataSource implements ApiResponseCallback {
 
         this.mCallback = callback;
 
-        if (thread == null) {
-            thread = new HttpServiceThread("getAllIdeas", getDummyRequestObject(), this);
-        } else {
-            thread.setApiName("getAllIdeas");
-            thread.setRequestBody(getDummyRequestObject());
-        }
+//        if (thread == null) {
+//            thread = new HttpServiceThread("getAllIdeas", getDummyRequestObject(), this);
+//        } else {
+//            thread.setApiName("getAllIdeas");
+//            thread.setRequestBody(getDummyRequestObject());
+//        }
+        thread = new HttpServiceThread("getAllIdeas", getDummyRequestObject(), this);
+
         thread.start();
     }
 
@@ -107,6 +110,39 @@ public class APIDataSource implements ApiResponseCallback {
             thread.setApiName("operations/registerIdea");
             thread.setRequestBody(object.toString());
         }
+        thread.start();
+    }
+
+    public void citeIdea(Constants.API_REQUEST requestType, String userName, Idea newIdea, ApiResponseCallback callback) {
+
+        this.mCallback = callback;
+
+
+        JSONObject object = null;
+        try {
+
+
+            object = new JSONObject();
+            object.put("userName", userName);
+            object.put("title", newIdea.getTitle());
+            object.put("context", newIdea.getContext());
+            object.put("content", newIdea.getContent());
+            object.put("originalID", newIdea.getOriginalID());
+
+
+        } catch (Exception e) {
+
+
+        }
+
+        thread = new HttpServiceThread("operations/registerIdea", object.toString(), this);
+
+//        if (thread == null) {
+//            thread = new HttpServiceThread("operations/registerIdea", object.toString(), this);
+//        } else {
+//            thread.setApiName("operations/registerIdea");
+//            thread.setRequestBody(object.toString());
+//        }
         thread.start();
     }
 

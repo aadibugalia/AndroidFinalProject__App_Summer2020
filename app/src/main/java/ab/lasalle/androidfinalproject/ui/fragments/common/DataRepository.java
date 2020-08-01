@@ -7,6 +7,7 @@ import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoggedInUser
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoginDataSource;
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoginResultCallback;
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.Result;
+import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
 
 public class DataRepository implements ApiResponseCallback {
 
@@ -52,6 +53,11 @@ public class DataRepository implements ApiResponseCallback {
     public void registerIdea(Constants.API_REQUEST requestType, String userName, String title, String content, String context, ApiResponseCallback callback) {
         this.mCallback = callback;
         mDataSource.registerIdea(requestType, userName, title, content, context,this);
+    }
+
+    public void citeIdea(Constants.API_REQUEST requestType, String userName, Idea newIdea, ApiResponseCallback callback) {
+        this.mCallback = callback;
+        mDataSource.citeIdea(requestType, userName, newIdea,this);
     }
 
 

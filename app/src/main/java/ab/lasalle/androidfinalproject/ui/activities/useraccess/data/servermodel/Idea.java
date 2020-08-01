@@ -18,4 +18,5 @@ public class Idea implements Serializable {
 
 
     private String content;
+    private String originalID;
 }

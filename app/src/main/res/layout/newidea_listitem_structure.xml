@@ -129,7 +129,7 @@
                     android:ellipsize="end"
                     android:gravity="center"
                     android:maxLines="1"
-                    android:text="Change"
+                    android:text="Cite"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"/>
             </LinearLayout>

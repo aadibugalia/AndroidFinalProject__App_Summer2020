@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 import org.json.JSONObject;
 
 import ab.lasalle.androidfinalproject.server.callbacks.ApiResponseCallback;
+import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
 
 
 public class SharedViewModel extends ViewModel implements ApiResponseCallback {
@@ -59,6 +60,14 @@ public class SharedViewModel extends ViewModel implements ApiResponseCallback {
     public void registerIdea(Constants.API_REQUEST requestType, String userName, String title, String content, String context) {
 
         mRepository.registerIdea(requestType, userName, title, content,context,this);
+        this.mRequestType= requestType;
+
+    }
+
+
+    public void citeIdea(Constants.API_REQUEST requestType, String userName,Idea newIdea) {
+
+        mRepository.citeIdea(requestType, userName, newIdea,this);
         this.mRequestType= requestType;
 
     }

@@ -1,16 +1,19 @@
 package ab.lasalle.androidfinalproject.ui.fragments.ideas;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import androidx.lifecycle.Observer;
@@ -46,6 +49,7 @@ import ab.lasalle.androidfinalproject.ui.fragments.common.APIResult;
 import ab.lasalle.androidfinalproject.ui.fragments.common.Constants;
 import ab.lasalle.androidfinalproject.ui.fragments.common.SharedViewModel;
 import ab.lasalle.androidfinalproject.ui.fragments.common.ViewModelFactory;
+import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
 public class IdeasFragment extends Fragment implements MessageFromActivity {
 
@@ -62,8 +66,11 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
 
     private SharedViewModel viewModel;
     private SwipeRefreshLayout pullToRefereshLayout;
+    private AlertDialog dialog;
 
-
+    EditText titleEditText;
+    EditText contextEditText;
+    EditText contentEditText = null;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -226,8 +233,8 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
 
                     }
                 })
-                // .setSwipeOptionViews(R.id.add, R.id.delete, R.id.change)
-                .setSwipeOptionViews(R.id.delete)
+                 .setSwipeOptionViews(R.id.add, R.id.delete, R.id.change)
+                //.setSwipeOptionViews(R.id.delete)
                 .setSwipeable(R.id.rowFG, R.id.rowBG, new RecyclerTouchListener.OnSwipeOptionsClickListener() {
                     @Override
                     public void onSwipeOptionClicked(int viewID, int position) {
@@ -237,12 +244,62 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
                         } else if (viewID == R.id.delete) {
                             message += "Edit";
                         } else if (viewID == R.id.change) {
-                            message += "Change";
+                            message += "cite";
+                            showDialogCiteIdea(mLoggedInUser,ideaList.get(position));
+
+
                         }
                         message += " clicked for row " + (position + 1);
 
                     }
                 });
+
+    }
+
+
+    public void showDialogCiteIdea(final LoggedInUser loggedInUser, final Idea oldIdea) {
+
+        View root = getLayoutInflater().inflate(R.layout.idea_layout, null, false);
+        dialog = new AlertDialog.Builder(getActivity())
+                .setView(root)
+
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+
+        final CircularProgressButton registerButton = root.findViewById(R.id.registerButton);
+
+
+
+        titleEditText = root.findViewById(R.id.ideaTitleEditText);
+        contextEditText = root.findViewById(R.id.ideaContextEditText);
+        contentEditText = root.findViewById(R.id.ideaContentEditText);
+
+
+        contextEditText.setText(oldIdea.getTitle().toString());
+        contextEditText.setEnabled(false);
+
+
+
+        registerButton.setText("Cite Idea");
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerButton.startAnimation();
+
+                Idea idea= new Idea();
+                idea.setTitle(titleEditText.getText().toString());
+                idea.setContext(contextEditText.getText().toString());
+                idea.setContent(contentEditText.getText().toString());
+                idea.setOriginalID(oldIdea.getId());
+
+
+                viewModel.citeIdea(Constants.API_REQUEST.REGISTER_IDEA, loggedInUser.getUserName(),idea );
+
+
+            }
+        });
+
 
     }
 
