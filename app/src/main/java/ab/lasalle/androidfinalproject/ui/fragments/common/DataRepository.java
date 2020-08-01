@@ -40,6 +40,11 @@ public class DataRepository implements ApiResponseCallback {
         mDataSource.searchUser(requestType, userName,this);
     }
 
+    public void searchIdea(Constants.API_REQUEST requestType, String title, ApiResponseCallback callback) {
+        this.mCallback = callback;
+        mDataSource.searchUser(requestType, title,this);
+    }
+
     public void updateToDo(Constants.API_REQUEST requestType, String userName, String ideaId, ApiResponseCallback callback) {
         this.mCallback = callback;
         mDataSource.fetchAllIdeas(requestType, this);

@@ -52,7 +52,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
 
 
     private SharedViewModel viewModel;
-    FloatingActionButton fab;
+    FloatingActionButton fab, searchFab;
     Fragment mChildFragment;
     MessageFromActivity sendMessageToChildFragment;
     LoggedInUser loggedInUser;
@@ -73,6 +73,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         fab = findViewById(R.id.fab);
+        searchFab = findViewById(R.id.search_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,6 +84,15 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
 
                     showDialogSearchUser(HomeActivity.this, loggedInUser);
                 }
+            }
+        });
+
+        searchFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    showDialogSearchIdea(HomeActivity.this, loggedInUser);
+
             }
         });
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -178,6 +188,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
     @Override
     public void toggleFabVisibility(int mVisibility) {
         fab.setVisibility(mVisibility);
+        searchFab.setVisibility(mVisibility);
     }
 
     @Override
@@ -185,9 +196,11 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
         this.isAdd = isAdd;
         if (isAdd) {
             fab.setImageResource(R.drawable.add);
+            searchFab.setVisibility(View.VISIBLE);
 
         } else {
             fab.setImageResource(R.drawable.search);
+            searchFab.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -227,6 +240,52 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
 
 
     }
+
+
+    public void showDialogSearchIdea(Context activity, final LoggedInUser loggedInUser) {
+
+        View root = getLayoutInflater().inflate(R.layout.search_idea_layout, null, false);
+        dialog = new AlertDialog.Builder(activity)
+                .setView(root)
+
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+
+
+        searchButton = root.findViewById(R.id.searchButton);
+        followButton = root.findViewById(R.id.followButton);
+        followButton.setText("Add Idea");
+        final EditText usernameEdittext;
+
+        usernameEdittext = root.findViewById(R.id.usernameToSearchTextView);
+        userResultEditText = root.findViewById(R.id.userResultEditText);
+
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchButton.startAnimation();
+
+                viewModel.searchIdea(Constants.API_REQUEST.SEARCH_USER, usernameEdittext.getText().toString());
+
+
+            }
+        });
+
+        followButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                followButton.startAnimation();
+
+            //    viewModel.updateFollowingList(Constants.API_REQUEST.FOLLOW_USER, loggedInUser.getUserName(), usernameEdittext.getText().toString());
+
+
+            }
+        });
+
+    }
+
+
 
     public void showDialogSearchUser(Context activity, final LoggedInUser loggedInUser) {
 

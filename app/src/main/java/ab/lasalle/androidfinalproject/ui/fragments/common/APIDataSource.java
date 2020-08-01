@@ -56,6 +56,31 @@ public class APIDataSource implements ApiResponseCallback {
     }
 
 
+    public void searchIdea(Constants.API_REQUEST requestType, String title, ApiResponseCallback callback) {
+
+        this.mCallback = callback;
+
+        JSONObject object = null;
+        try {
+
+
+            object = new JSONObject();
+            object.put("userName", title);
+
+
+        } catch (Exception e) {
+
+
+        }
+
+        thread = new HttpServiceThread("/getIdea/"+title, object.toString(), this);
+
+
+
+        thread.start();
+    }
+
+
     public void updateFollowingList(Constants.API_REQUEST requestType, String userName, String userNametoFollow, ApiResponseCallback callback) {
         this.mCallback = callback;
 

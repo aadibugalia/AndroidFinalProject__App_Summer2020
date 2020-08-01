@@ -16,6 +16,7 @@
     <string name="loginButton">Login</string>
     <string name="registerIdea">Register New Idea</string>
     <string name="searchUser">Search User to Follow</string>
+    <string name="searchIdea">Search Idea to Add</string>
     <string name="title_activity_splash">SplashActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
