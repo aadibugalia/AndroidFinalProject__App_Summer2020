@@ -37,7 +37,7 @@ public class SharedViewModel extends ViewModel implements ApiResponseCallback {
 
     public void searchUser(Constants.API_REQUEST requestType, String userName) {
 
-        mRepository.fetchAllIdeas(requestType, this);
+        mRepository.searchUser(requestType, userName,this);
         this.mRequestType= requestType;
 
     }
@@ -58,7 +58,7 @@ public class SharedViewModel extends ViewModel implements ApiResponseCallback {
 
     public void registerIdea(Constants.API_REQUEST requestType, String userName, String title, String content, String context) {
 
-        mRepository.updateToDo(requestType, userName, title, this);
+        mRepository.registerIdea(requestType, userName, title, content,context,this);
         this.mRequestType= requestType;
 
     }

@@ -31,7 +31,7 @@ public class DataRepository implements ApiResponseCallback {
 
     public void fetchAllIdeas(Constants.API_REQUEST requestType, ApiResponseCallback callback) {
         this.mCallback = callback;
-        mDataSource.fetchAllIdeas(requestType, this);
+        mDataSource.fetchAllIdeas(requestType,callback);
     }
 
     public void searchUser(Constants.API_REQUEST requestType, String userName, ApiResponseCallback callback) {
@@ -51,7 +51,7 @@ public class DataRepository implements ApiResponseCallback {
 
     public void registerIdea(Constants.API_REQUEST requestType, String userName, String title, String content, String context, ApiResponseCallback callback) {
         this.mCallback = callback;
-        mDataSource.fetchAllIdeas(requestType, this);
+        mDataSource.registerIdea(requestType, userName, title, content, context,this);
     }
 
 

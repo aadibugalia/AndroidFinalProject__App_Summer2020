@@ -36,6 +36,7 @@ import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.LoggedInUser
 import ab.lasalle.androidfinalproject.ui.activities.useraccess.data.servermodel.Idea;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageFromActivity;
 import ab.lasalle.androidfinalproject.ui.fragments.callbacks.MessageToActivity;
+import ab.lasalle.androidfinalproject.ui.fragments.common.SharedViewModel;
 import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasFragment;
 import ab.lasalle.androidfinalproject.ui.fragments.ideas.IdeasRecyclerViewAdapter;
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
@@ -46,10 +47,10 @@ public class PeopleFragment extends Fragment implements MessageFromActivity, Rec
 
 
 
-    MessageToActivity sendMessageToActivity;
+   private MessageToActivity sendMessageToActivity;
     private AlertDialog dialog;
 
-    RecyclerView mRecyclerView;
+   private RecyclerView mRecyclerView;
     PeopleRecyclerViewAdapter mAdapter;
     String[] dialogItems;
     private LoggedInUser mLoggedInUser;
@@ -57,6 +58,8 @@ public class PeopleFragment extends Fragment implements MessageFromActivity, Rec
     private RecyclerTouchListener onTouchListener;
     private int openOptionsPosition;
     private OnActivityTouchListener touchListener;
+
+    private SharedViewModel viewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

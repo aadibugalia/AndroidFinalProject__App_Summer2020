@@ -18,6 +18,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.nikhilpanju.recyclerviewenhanced.OnActivityTouchListener;
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener;
@@ -60,6 +61,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
     private OnActivityTouchListener touchListener;
 
     private SharedViewModel viewModel;
+    private SwipeRefreshLayout pullToRefereshLayout;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -73,6 +75,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
         sendMessageToActivity.toggleAddSearch(true);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.ideaListView);
+        pullToRefereshLayout=(SwipeRefreshLayout) root.findViewById(R.id.swipeContainer);
 
         return root;
     }
@@ -92,6 +95,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
     public void onPause() {
         super.onPause();
         mRecyclerView.removeOnItemTouchListener(onTouchListener);
+
     }
 
     @Override
@@ -99,11 +103,26 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
         super.onResume();
         viewModel = ViewModelProviders.of(this, new ViewModelFactory())
                 .get(SharedViewModel.class);
+//implement paging: app side and server
+
+        pullToRefereshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                viewModel.fetchAllIdeas(Constants.API_REQUEST.FETCH_IDEAS);
+            }
+        });
+        // Configuring the refreshing colors
+        pullToRefereshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
 
 
         viewModel.getAPIResult().observe(this, new Observer<APIResult>() {
             @Override
             public void onChanged(@Nullable APIResult apiResult) {
+                pullToRefereshLayout.setRefreshing(false);
                 if (apiResult == null) {
                     return;
                 }
@@ -160,7 +179,7 @@ public class IdeasFragment extends Fragment implements MessageFromActivity {
         });
 
 
-        viewModel.fetchAllIdeas(Constants.API_REQUEST.FETCH_IDEAS);
+
     }
 
     private void setUpRecylerviewData(final List<Idea> ideaList) {

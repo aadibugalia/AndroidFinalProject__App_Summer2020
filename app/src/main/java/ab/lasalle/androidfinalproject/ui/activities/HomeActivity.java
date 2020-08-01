@@ -211,7 +211,7 @@ public class HomeActivity extends AppCompatActivity implements MessageToActivity
         contentEditText = root.findViewById(R.id.ideaContentEditText);
 
 
-        registerButton.setText("update");
+        registerButton.setText("Save Idea");
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

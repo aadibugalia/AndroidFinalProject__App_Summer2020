@@ -102,10 +102,10 @@ public class APIDataSource implements ApiResponseCallback {
         }
 
         if (thread == null) {
-            thread = new HttpServiceThread("operations/registerIdea", getDummyRequestObject(), this);
+            thread = new HttpServiceThread("operations/registerIdea", object.toString(), this);
         } else {
             thread.setApiName("operations/registerIdea");
-            thread.setRequestBody(getDummyRequestObject());
+            thread.setRequestBody(object.toString());
         }
         thread.start();
     }
